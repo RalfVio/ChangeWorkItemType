@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" UpgradeCode="6b9fc7ce-59e7-43dd-9002-f11c1ede694d" Version="1.0.0.0" Language="1033" Name="ChangeWorkItemType" Manufacturer="Philips">
+        <Package InstallerVersion="300" Compressed="yes"/>
+        <Media Id="1" Cabinet="ChangeWorkItemType.cab" EmbedCab="yes" />
+
+        <!-- Step 1: Define the directory structure -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+              <Directory Id="APPLICATIONCompanyDIRECTORY" Name="Philips">
+                <Directory Id="APPLICATIONROOTDIRECTORY" Name="ChangeWorkItemType"/>
+              </Directory>
+            </Directory>
+
+            <Directory Id="ProgramMenuFolder">
+              <Directory Id="ProgramMenuCompanyFolder" Name="Philips">
+                <Directory Id="ApplicationProgramsFolder" Name="ChangeWorkItemType"/>
+              </Directory>
+            </Directory>
+        </Directory>
+
+        <!-- Step 2: Add files to your installer package -->
+        <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+          <Component Id="Comp0000" Guid="cc4e08b2-d809-47c3-aabb-c3bb85628fd8">
+                <File Id="File0000" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.deps.json" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0001" Guid="2d1cd166-f1dc-4981-8f5c-fee7c75d62ba">
+                <File Id="File0001" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.dll" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0002" Guid="89648fe8-709b-4054-a8f5-b90f45357973">
+                <File Id="File0002" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.exe" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0003" Guid="587770e3-a43d-442c-80e0-52bfa6b69130">
+                <File Id="File0003" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.pdb" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0004" Guid="181ecb55-dfa8-437b-87fa-bfe5473138f1">
+                <File Id="File0004" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.runtimeconfig.dev.json" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0005" Guid="a170eef3-3064-4bee-8587-c28b3c2b5975">
+                <File Id="File0005" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\AzureDevOps ChangeWorkItemType.runtimeconfig.json" KeyPath="yes" Checksum="yes"/>
+          </Component>
+          <Component Id="Comp0006" Guid="1e15d808-ea96-4c1b-882c-caee9255a8a0">
+                <File Id="File0006" Source="..\AzureDevOps ChangeWorkItemType\bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" KeyPath="yes" Checksum="yes"/>
+          </Component>
+        </DirectoryRef>
+
+       <!-- Step 3: Add the shortcut to your installer package -->
+        <DirectoryRef Id="ApplicationProgramsFolder">
+          <Component Id="ApplicationShortcut" Guid="37db5a8a-6e64-4eab-a9d4-16a8a0a74ce4">
+            <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="ChangeWorkItemType"
+                  Description="Tool to Change Work Item Type"
+                  Target="[#File0002]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+              <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall"/>
+              <RemoveFolder Id="RemoveProgramMenuCompanyFolder" Directory="ProgramMenuCompanyFolder" On="uninstall"/>
+              <RegistryValue Root="HKCU" Key="Software\Philips\ChangeWorkItemType" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+        </DirectoryRef>
+
+        <!-- Step 4: Tell WiX to install the files -->
+        <Feature Id="MainApplication" Title="ChangeWorkItemType" Level="1">
+            <ComponentRef Id="Comp0000" />
+            <ComponentRef Id="Comp0001" />
+            <ComponentRef Id="Comp0002" />
+            <ComponentRef Id="Comp0003" />
+            <ComponentRef Id="Comp0004" />
+            <ComponentRef Id="Comp0005" />
+            <ComponentRef Id="Comp0006" />
+             <!-- Step 5: Tell WiX to install the shortcut -->
+            <ComponentRef Id="ApplicationShortcut" />
+        </Feature>
+    </Product>
+</Wix>
