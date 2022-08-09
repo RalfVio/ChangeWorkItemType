@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace AzureDevOps_ChangeWorkItemType
 {
@@ -19,8 +22,9 @@ namespace AzureDevOps_ChangeWorkItemType
         {
             InitializeComponent();
             this.query_groupBox.Location = this.wi_groupBox.Location;
-            this.wi_groupBox.Width = this.query_groupBox.Width = radioButtons_groupBox.Width; ;
+            this.wi_groupBox.Width = this.query_groupBox.Width = radioButtons_groupBox.Width;
         }
+
         #region Events
 
         #region Form
@@ -28,8 +32,8 @@ namespace AzureDevOps_ChangeWorkItemType
         {
             try
             {
-                this.queryResult_dataGridView.Rows.Clear();
-
+                this.wi_groupBox.Visible = this.query_groupBox.Visible=this.radioButtons_groupBox.Enabled = false;
+                this.Cursor = Cursors.WaitCursor;
                 _localConfig = Configuration.LocalConfig.ReadFromFile(Program.LocalConfigFilePath()); ;
 
                 if (_localConfig != null && !_localConfig.IsValid())
@@ -51,37 +55,23 @@ namespace AzureDevOps_ChangeWorkItemType
                 }
                 else
                 {
-                    var ids = await _blRest.GetFlatQueryResult(_localConfig.Query);
-
-                    _workItems = new List<Rest.BL_WorkItem.WorkItem>();
-                    var idBatches = Rest.BL_WorkItem.SplitIdsIntoBatches(ids);
-                    foreach (var idBatch in idBatches)
-                        _workItems.AddRange(await _blRest.GetWorkItems(idBatch));
-
-                    PopulateQueryResult(_workItems);
+                    await WorkItemsRead(false);
+                    PopulateQueryResult();
 
                     this.query_radioButton.Enabled = true;
                     this.query_radioButton.Checked = true;
                     ActivateGroupControl();
                 }
-            }
-            catch(Exception ex) { MessageBox.Show($"Not able to read configuration. Please update configuration in Options/Settings.\r\n\r\nMessage:\r\n{ex.Message}"); }
 
+            }
+            catch (Exception ex) { MessageBox.Show($"Not able to read configuration. Please update configuration in Options/Settings.\r\n\r\nMessage:\r\n{ex.Message}"); }
+
+            this.Cursor = Cursors.Default;
+            this.radioButtons_groupBox.Enabled = true;
             _active = true;
         }
 
-        private void PopulateQueryResult(List<Rest.BL_WorkItem.WorkItem> workItems)
-        {
-            foreach (var workItem in workItems)
-            {
-                int rowNumber = this.queryResult_dataGridView.Rows.Add();
-                this.queryResult_dataGridView.Rows[rowNumber].Cells[0].Value = workItem.Id;
-                this.queryResult_dataGridView.Rows[rowNumber].Cells[1].Value = workItem.WorkItemType;
-                this.queryResult_dataGridView.Rows[rowNumber].Cells[2].Value = workItem.Title;
-            }
-        }
-
-        private void StartForm_FormClosing(object sender, FormClosingEventArgs e)
+         private void StartForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_blRest != null)
                 _blRest.Dispose();
@@ -163,6 +153,43 @@ namespace AzureDevOps_ChangeWorkItemType
                 return;
             ActivateGroupControl();
         }
+        private async void queryResultRefresh_linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            this.wi_groupBox.Visible = this.query_groupBox.Visible = this.radioButtons_groupBox.Enabled = false;
+            this.Cursor = Cursors.WaitCursor;
+
+            _localConfig = Configuration.LocalConfig.ReadFromFile(Program.LocalConfigFilePath());
+
+            if (_localConfig != null && !_localConfig.IsValid())
+                _localConfig = null;
+
+            if (_localConfig == null)
+                throw new Exception("Not able to read configuration");
+            _blRest = GetBL();
+            if (_blRest == null)
+                throw new Exception("Invalid configuration");
+
+            if (string.IsNullOrEmpty(_localConfig.Query))
+            {
+                this.wiId_textBox.SelectAll();
+                this.wiId_textBox.Focus();
+                this.wi_radioButton.Checked = true;
+                this.query_radioButton.Enabled = false;
+                ActivateGroupControl();
+            }
+            else
+            {
+                await WorkItemsRead(true);
+                PopulateQueryResult();
+
+                this.query_radioButton.Enabled = true;
+                this.query_radioButton.Checked = true;
+                ActivateGroupControl();
+            }
+
+            this.Cursor = Cursors.Default;
+            this.radioButtons_groupBox.Enabled = true;
+        }
         #endregion
 
         #region Menu
@@ -179,9 +206,9 @@ namespace AzureDevOps_ChangeWorkItemType
                 return;
             try
             {
-                this.queryResult_dataGridView.Rows.Clear();
-                this.wi_groupBox.Visible = this.query_groupBox.Visible = false;
-                
+                this.wi_groupBox.Visible = this.query_groupBox.Visible = this.radioButtons_groupBox.Enabled = false;
+                this.Cursor = Cursors.WaitCursor;
+
                 _localConfig = Configuration.LocalConfig.ReadFromFile(Program.LocalConfigFilePath());
 
                 if (_localConfig != null && !_localConfig.IsValid())
@@ -203,19 +230,16 @@ namespace AzureDevOps_ChangeWorkItemType
                 }
                 else
                 {
-                    var ids = await _blRest.GetFlatQueryResult(_localConfig.Query);
-
-                    _workItems = new List<Rest.BL_WorkItem.WorkItem>();
-                    var idBatches = Rest.BL_WorkItem.SplitIdsIntoBatches(ids);
-                    foreach (var idBatch in idBatches)
-                        _workItems.AddRange(await _blRest.GetWorkItems(idBatch));
-
-                    PopulateQueryResult(_workItems);
+                    await WorkItemsRead(true);
+                    PopulateQueryResult();
 
                     this.query_radioButton.Enabled = true;
                     this.query_radioButton.Checked = true;
                     ActivateGroupControl();
                 }
+
+                this.Cursor = Cursors.Default;
+                this.radioButtons_groupBox.Enabled = true;
             }
             catch (Exception ex) { MessageBox.Show($"Not able to read configuration. Please update configuration in Options/Settings.\r\n\r\nMessage:\r\n{ex.Message}"); }
 
@@ -234,6 +258,7 @@ namespace AzureDevOps_ChangeWorkItemType
             form.ShowDialog();
         }
         #endregion
+
         #endregion 
 
         #region Helper functions
@@ -271,7 +296,51 @@ namespace AzureDevOps_ChangeWorkItemType
             if (isMigrated)
                 await _blRest.WorkItemAddComment(_workItem, _workItem.Description);
         }
+        private void WorkItemsSave()
+        {
+            if (_workItems == null)
+                return;
+            var json = JsonConvert.SerializeObject(_workItems, Formatting.Indented);
+            File.WriteAllText(Program.LocalWICacheFilePath(), json, Encoding.UTF8);
+        }
+        private async Task WorkItemsRead(bool refresh)
+        {
+            List<Rest.BL_WorkItem.WorkItem> result = null;
 
+            _workItems = null;
+            if (!refresh && File.Exists(Program.LocalWICacheFilePath()))
+            {
+                using StreamReader file = File.OpenText(Program.LocalWICacheFilePath());
+                JsonSerializer serializer = new JsonSerializer();
+                result = (List<Rest.BL_WorkItem.WorkItem>)serializer.Deserialize(file, typeof(List<Rest.BL_WorkItem.WorkItem>));
+                _workItems = result;
+            }
+            if (refresh || _workItems == null)
+            {
+                var ids = await _blRest.GetFlatQueryResult(_localConfig.Query);
+
+                _workItems = new List<Rest.BL_WorkItem.WorkItem>();
+                var idBatches = Rest.BL_WorkItem.SplitIdsIntoBatches(ids);
+                foreach (var idBatch in idBatches)
+                    _workItems.AddRange(await _blRest.GetWorkItems(idBatch));
+
+                if (_workItems != null)
+                    WorkItemsSave();
+            }
+                
+        }
+        private void PopulateQueryResult()
+        {
+            this.queryResult_dataGridView.Rows.Clear();
+            foreach (var workItem in _workItems.OrderByDescending(w=>w.Id))
+            {
+                int rowNumber = this.queryResult_dataGridView.Rows.Add();
+                this.queryResult_dataGridView.Rows[rowNumber].Cells[0].Value = workItem.Id;
+                this.queryResult_dataGridView.Rows[rowNumber].Cells[1].Value = workItem.WorkItemType;
+                this.queryResult_dataGridView.Rows[rowNumber].Cells[2].Value = workItem.Title;
+            }
+            this.query_groupBox.Text = $" {_workItems.Count} work items ";
+        }
         private void ActivateGroupControl()
         {
             this.wi_groupBox.Visible = this.wi_radioButton.Checked;
@@ -282,8 +351,7 @@ namespace AzureDevOps_ChangeWorkItemType
                 this.wiId_textBox.Focus();
             }
         }
+
         #endregion
-
-
     }
 }

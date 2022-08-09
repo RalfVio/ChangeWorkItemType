@@ -29,13 +29,18 @@ namespace AzureDevOps_ChangeWorkItemType
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.wi_groupBox = new System.Windows.Forms.GroupBox();
             this.wiRead_button = new System.Windows.Forms.Button();
             this.wiId_textBox = new System.Windows.Forms.TextBox();
             this.wiId_label = new System.Windows.Forms.Label();
             this.query_groupBox = new System.Windows.Forms.GroupBox();
+            this.queryResultRefresh_linkLabel = new System.Windows.Forms.LinkLabel();
             this.queryResult_dataGridView = new System.Windows.Forms.DataGridView();
+            this.id_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.wiType_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.title_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.migrate_dataGridViewColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.close_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,10 +52,6 @@ namespace AzureDevOps_ChangeWorkItemType
             this.radioButtons_groupBox = new System.Windows.Forms.GroupBox();
             this.query_radioButton = new System.Windows.Forms.RadioButton();
             this.wi_radioButton = new System.Windows.Forms.RadioButton();
-            this.id_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.wiType_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.title_dataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.migrate_dataGridViewColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.wi_groupBox.SuspendLayout();
             this.query_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.queryResult_dataGridView)).BeginInit();
@@ -105,13 +106,26 @@ namespace AzureDevOps_ChangeWorkItemType
             this.query_groupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.query_groupBox.Controls.Add(this.queryResultRefresh_linkLabel);
             this.query_groupBox.Controls.Add(this.queryResult_dataGridView);
-            this.query_groupBox.Location = new System.Drawing.Point(30, 261);
+            this.query_groupBox.Location = new System.Drawing.Point(30, 200);
             this.query_groupBox.Name = "query_groupBox";
-            this.query_groupBox.Size = new System.Drawing.Size(942, 390);
+            this.query_groupBox.Size = new System.Drawing.Size(942, 580);
             this.query_groupBox.TabIndex = 1;
             this.query_groupBox.TabStop = false;
             this.query_groupBox.Visible = false;
+            // 
+            // queryResultRefresh_linkLabel
+            // 
+            this.queryResultRefresh_linkLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.queryResultRefresh_linkLabel.AutoSize = true;
+            this.queryResultRefresh_linkLabel.Location = new System.Drawing.Point(28, 534);
+            this.queryResultRefresh_linkLabel.Name = "queryResultRefresh_linkLabel";
+            this.queryResultRefresh_linkLabel.Size = new System.Drawing.Size(70, 25);
+            this.queryResultRefresh_linkLabel.TabIndex = 1;
+            this.queryResultRefresh_linkLabel.TabStop = true;
+            this.queryResultRefresh_linkLabel.Text = "Refresh";
+            this.queryResultRefresh_linkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.queryResultRefresh_linkLabel_LinkClicked);
             // 
             // queryResult_dataGridView
             // 
@@ -126,7 +140,7 @@ namespace AzureDevOps_ChangeWorkItemType
             this.wiType_dataGridViewColumn,
             this.title_dataGridViewColumn,
             this.migrate_dataGridViewColumn});
-            this.queryResult_dataGridView.Location = new System.Drawing.Point(10, 10);
+            this.queryResult_dataGridView.Location = new System.Drawing.Point(10, 35);
             this.queryResult_dataGridView.MultiSelect = false;
             this.queryResult_dataGridView.Name = "queryResult_dataGridView";
             this.queryResult_dataGridView.ReadOnly = true;
@@ -134,9 +148,48 @@ namespace AzureDevOps_ChangeWorkItemType
             this.queryResult_dataGridView.RowTemplate.Height = 50;
             this.queryResult_dataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.queryResult_dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.queryResult_dataGridView.Size = new System.Drawing.Size(909, 343);
+            this.queryResult_dataGridView.Size = new System.Drawing.Size(909, 470);
             this.queryResult_dataGridView.TabIndex = 0;
             this.queryResult_dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Wis_dataGridView_CellClick);
+            // 
+            // id_dataGridViewColumn
+            // 
+            this.id_dataGridViewColumn.Frozen = true;
+            this.id_dataGridViewColumn.HeaderText = "ID";
+            this.id_dataGridViewColumn.MinimumWidth = 8;
+            this.id_dataGridViewColumn.Name = "id_dataGridViewColumn";
+            this.id_dataGridViewColumn.ReadOnly = true;
+            this.id_dataGridViewColumn.Width = 75;
+            // 
+            // wiType_dataGridViewColumn
+            // 
+            this.wiType_dataGridViewColumn.HeaderText = "Type";
+            this.wiType_dataGridViewColumn.MinimumWidth = 8;
+            this.wiType_dataGridViewColumn.Name = "wiType_dataGridViewColumn";
+            this.wiType_dataGridViewColumn.ReadOnly = true;
+            this.wiType_dataGridViewColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.wiType_dataGridViewColumn.Width = 150;
+            // 
+            // title_dataGridViewColumn
+            // 
+            this.title_dataGridViewColumn.HeaderText = "Title";
+            this.title_dataGridViewColumn.MinimumWidth = 8;
+            this.title_dataGridViewColumn.Name = "title_dataGridViewColumn";
+            this.title_dataGridViewColumn.ReadOnly = true;
+            this.title_dataGridViewColumn.Width = 400;
+            // 
+            // migrate_dataGridViewColumn
+            // 
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(5);
+            this.migrate_dataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.migrate_dataGridViewColumn.HeaderText = "";
+            this.migrate_dataGridViewColumn.MinimumWidth = 8;
+            this.migrate_dataGridViewColumn.Name = "migrate_dataGridViewColumn";
+            this.migrate_dataGridViewColumn.ReadOnly = true;
+            this.migrate_dataGridViewColumn.Text = "Migrate";
+            this.migrate_dataGridViewColumn.UseColumnTextForButtonValue = true;
+            this.migrate_dataGridViewColumn.Width = 120;
             // 
             // menuStrip1
             // 
@@ -240,50 +293,11 @@ namespace AzureDevOps_ChangeWorkItemType
             this.wi_radioButton.UseVisualStyleBackColor = true;
             this.wi_radioButton.CheckedChanged += new System.EventHandler(this.RadioButton_CheckedChanged);
             // 
-            // id_dataGridViewColumn
-            // 
-            this.id_dataGridViewColumn.Frozen = true;
-            this.id_dataGridViewColumn.HeaderText = "ID";
-            this.id_dataGridViewColumn.MinimumWidth = 8;
-            this.id_dataGridViewColumn.Name = "id_dataGridViewColumn";
-            this.id_dataGridViewColumn.ReadOnly = true;
-            this.id_dataGridViewColumn.Width = 75;
-            // 
-            // wiType_dataGridViewColumn
-            // 
-            this.wiType_dataGridViewColumn.HeaderText = "Type";
-            this.wiType_dataGridViewColumn.MinimumWidth = 8;
-            this.wiType_dataGridViewColumn.Name = "wiType_dataGridViewColumn";
-            this.wiType_dataGridViewColumn.ReadOnly = true;
-            this.wiType_dataGridViewColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.wiType_dataGridViewColumn.Width = 150;
-            // 
-            // title_dataGridViewColumn
-            // 
-            this.title_dataGridViewColumn.HeaderText = "Title";
-            this.title_dataGridViewColumn.MinimumWidth = 8;
-            this.title_dataGridViewColumn.Name = "title_dataGridViewColumn";
-            this.title_dataGridViewColumn.ReadOnly = true;
-            this.title_dataGridViewColumn.Width = 400;
-            // 
-            // migrate_dataGridViewColumn
-            // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.Padding = new System.Windows.Forms.Padding(5);
-            this.migrate_dataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle1;
-            this.migrate_dataGridViewColumn.HeaderText = "";
-            this.migrate_dataGridViewColumn.MinimumWidth = 8;
-            this.migrate_dataGridViewColumn.Name = "migrate_dataGridViewColumn";
-            this.migrate_dataGridViewColumn.ReadOnly = true;
-            this.migrate_dataGridViewColumn.Text = "Migrate";
-            this.migrate_dataGridViewColumn.UseColumnTextForButtonValue = true;
-            this.migrate_dataGridViewColumn.Width = 120;
-            // 
             // StartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1006, 654);
+            this.ClientSize = new System.Drawing.Size(1006, 739);
             this.Controls.Add(this.radioButtons_groupBox);
             this.Controls.Add(this.query_groupBox);
             this.Controls.Add(this.wi_groupBox);
@@ -300,6 +314,7 @@ namespace AzureDevOps_ChangeWorkItemType
             this.wi_groupBox.ResumeLayout(false);
             this.wi_groupBox.PerformLayout();
             this.query_groupBox.ResumeLayout(false);
+            this.query_groupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.queryResult_dataGridView)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -333,6 +348,7 @@ namespace AzureDevOps_ChangeWorkItemType
         private System.Windows.Forms.DataGridViewTextBoxColumn wiType_dataGridViewColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn title_dataGridViewColumn;
         private System.Windows.Forms.DataGridViewButtonColumn migrate_dataGridViewColumn;
+        private System.Windows.Forms.LinkLabel queryResultRefresh_linkLabel;
     }
 }
 
